@@ -1,3 +1,13 @@
+"""
+Agent 1 : Simple Chat Bot
+Objectives:
+        Define state structure with a list of HumanMessage objects.
+        Initialize a GPT-4o model using LangChain's ChatOpenAI
+        Sending and handling different types of messages
+        Building and compiling the graph of the Agent
+        Main Goal: How to integrate LLMs in our Graphs
+"""
+
 from typing import TypedDict, List
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
