@@ -41,7 +41,17 @@ def add(a:int,b:int):
     """This is a addition function that adds two numbers"""
     return a+b
 
-tools=[add] #can have multiple tools as well
+@tool
+def subtract(a:int,b:int):
+    """This is a subtraction function that subtracts two numbers"""
+    return a-b
+
+@tool
+def multiply(a:int,b:int):
+    """This is a multiplication function that multiplies two numbers"""
+    return a*b
+
+tools=[add,subtract,multiply] #can have multiple tools as well
 
 model=ChatOpenAI(model='gpt-4o').bind_tools(tools) #Binding the tool we created
 
@@ -100,6 +110,6 @@ def print_stream(stream):
             print(message)
         else:
             message.pretty_print()
-
-inputs={"messages":[("user","add 31+25. and add 3+8")]}
+            
+inputs={"messages":[("user","add 40+12 and multiply the result by 6, subtract 2 from the result that you get after multiplicaiton")]}
 print_stream(app.stream(inputs,stream_mode="values"))
