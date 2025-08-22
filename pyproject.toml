@@ -45,5 +45,6 @@ langsmith = "^0.4.4"
 langchain-tavily = "^0.2.7"
 langgraph-supervisor = "^0.0.27"
 langgraph-sdk = "^0.1.72"
+grandalf = "^0.8"
 
 
