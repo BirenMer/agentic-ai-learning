@@ -6,6 +6,7 @@ Agent 2
     Use GPT-40 model using LangChain's ChatOpenAI
     Create a sophisticated conversation loop
     Main Goal: Create a form of memory for our Agent
+    The memory type in this agent is a simple list that stores the response in memory
 """
 import os 
 from dotenv import load_dotenv
