@@ -36,8 +36,11 @@ while True:
     if user_input in ["exit", "quit", "break"]:
         break
     else:
+        # print(f"User: {user_input}")
         result=app.invoke(
            { "messages":[HumanMessage(content=user_input)]},
            config=config
         )
-    print(result)
+
+        print(f"AI: {result['messages'][-1].content}")
+    # print(result)
