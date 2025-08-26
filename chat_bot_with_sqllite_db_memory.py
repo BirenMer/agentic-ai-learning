@@ -5,14 +5,19 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph.message import add_messages 
 from langgraph.graph import StateGraph,END,START
 from langgraph.prebuilt import ToolNode
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
+import sqlite3
 load_dotenv()
 
 """
-Goal : Create a chat bot and provide it with a checkpointer memory and test if it is working or not.
+Goal : Create a chat bot and provide it with a sqllite memory and test if it is working or not.
 """
 
+## Connecting / Creating the DB
+sqllite_conn=sqlite3.connect("checkpoint.sqlite")
+
 llm=ChatOpenAI(model='gpt-4o',temperature=0)
+
 class AgentState(TypedDict):   
     messages: Annotated[list,add_messages]
 
@@ -28,8 +33,8 @@ config={"configurable":{
     "thread_id":1
 }}
 
-in_memory_Checkpointer=MemorySaver()
-app=graph.compile(checkpointer=in_memory_Checkpointer)
+sqlite_checkpointer=SqliteSaver(sqllite_conn)
+app=graph.compile(checkpointer=sqlite_checkpointer)
 
 #To check the graph strcutre
 # from IPython.display import Image,display
