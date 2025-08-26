@@ -2,3 +2,4 @@
 *.pdf
 *.python-version
 __pycache__/
+*.sqlite
