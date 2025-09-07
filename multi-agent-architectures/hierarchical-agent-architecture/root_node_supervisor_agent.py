@@ -56,13 +56,3 @@ super_builder.add_node("writing_team", call_paper_writing_team)
 super_builder.add_edge(START, "supervisor")
 super_graph = super_builder.compile()
 
-for s in super_graph.stream(
-    {
-        "messages": [
-            ("user", "Research AI agents and write a brief report about them.")
-        ],
-    },
-    {"recursion_limit": 150},
-):
-    print(s)
-    print("---")
