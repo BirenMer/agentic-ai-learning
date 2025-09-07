@@ -1,6 +1,6 @@
 from typing import List
 
-from langchain_core.messages import BaseMessage, ToolMessage
+from langchain_core.messages import BaseMessage, ToolMessage, AIMessage
 from langgraph.graph import END, MessageGraph
 
 from chains import revisor_chain, first_responder_chain
@@ -20,20 +20,22 @@ graph.add_edge("execute_tools", "revisor")
 def event_loop(state: List[BaseMessage]) -> str:
     count_tool_visits = sum(isinstance(item, ToolMessage) for item in state)
     num_iterations = count_tool_visits
+
     if num_iterations > MAX_ITERATIONS:
         return END
-    return "execute_tools"
+
+    # Check if the last message is an AI message with tool calls
+    if (state and 
+        isinstance(state[-1], AIMessage) and 
+        getattr(state[-1], 'tool_calls', None)):
+        return "execute_tools"
+
+    return END
 
 graph.add_conditional_edges("revisor", event_loop)
 graph.set_entry_point("draft")
 
 app = graph.compile()
 
-print(app.get_graph().draw_mermaid())
-
-response = app.invoke(
-    "Write about how small business can leverage AI to grow"
-)
-
-print(response[-1].tool_calls[0]["args"]["answer"])
-print(response, "response")
+## Visualize the graph
+# print(app.get_graph().draw_mermaid())

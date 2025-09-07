@@ -1,11 +1,12 @@
 import json
 from typing import List
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage, HumanMessage
-from langchain_community.tools import TavilySearchResults
+from langchain_tavily import TavilySearch
 from dotenv import load_dotenv
 load_dotenv()
+
 # Create the Tavily search tool
-tavily_tool = TavilySearchResults(max_results=5)
+tavily_tool = TavilySearch(max_results=5)
 
 # Function to execute search queries from AnswerQuestion / ReviseAnswer tool calls
 def execute_tools(state: List[BaseMessage]) -> List[BaseMessage]:
@@ -21,11 +22,14 @@ def execute_tools(state: List[BaseMessage]) -> List[BaseMessage]:
     tool_messages: List[BaseMessage] = []
 
     for tool_call in last_message.tool_calls:
-        if tool_call["name"] in ["AnswerQuestion", "ReviseAnswer"]:
-            call_id = tool_call["id"]
-            search_queries = tool_call["args"].get("search_queries", [])
+        name = tool_call["name"]
+        call_id = tool_call["id"]
+        args = tool_call.get("args", {})
 
+        if name in ["AnswerQuestion", "ReviseAnswer"]:
+            search_queries = args.get("search_queries", [])
             query_results = {}
+
             for query in search_queries:
                 try:
                     result = tavily_tool.invoke({"query": query})
@@ -40,36 +44,20 @@ def execute_tools(state: List[BaseMessage]) -> List[BaseMessage]:
                 )
             )
 
-    # Return original state + new tool messages
+        else:
+            # 👇 fallback: wrap unknown schema/object safely
+            try:
+                safe_content = (
+                    args if isinstance(args, str) else json.dumps(args, ensure_ascii=False, indent=2)
+                )
+            except Exception:
+                safe_content = str(args)
+
+            tool_messages.append(
+                ToolMessage(
+                    content=safe_content,
+                    tool_call_id=call_id,
+                )
+            )
+
     return state + tool_messages
-
-
-# Example usage
-test_state = [
-    HumanMessage(content="Write about how small business can leverage AI to grow"),
-    AIMessage(
-        content="",
-        tool_calls=[
-            {
-                "name": "AnswerQuestion",
-                "args": {
-                    "answer": "",
-                    "search_queries": [
-                        "AI tools for small business",
-                        "AI in small business marketing",
-                        "AI automation for small business",
-                    ],
-                    "reflection": {"missing": "", "superfluous": ""},
-                },
-                "id": "call_KpYHichFFEmLitHFvFhKy1Ra",
-            }
-        ],
-    ),
-]
-
-# Execute the tools
-results = execute_tools(test_state)
-
-print("Raw results:", results[-1].content)
-parsed_content = json.loads(results[-1].content)
-print("Parsed content:", parsed_content)
