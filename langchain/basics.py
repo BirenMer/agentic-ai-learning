@@ -1,5 +1,8 @@
 from langchain_openai import ChatOpenAI
 
+from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
+from langchain_core.prompts import PromptTemplate
+
 from langchain_core.prompts import (
             SystemMessagePromptTemplate, 
             HumanMessagePromptTemplate,
@@ -10,13 +13,18 @@ from pydantic import BaseModel, Field
 
 from dotenv import load_dotenv
 
+from skimage import io
+import matplotlib.pyplot as plt
+from langchain_core.runnables import RunnableLambda
+
 load_dotenv()
 
 """
 For this file our goal is to levarage Langchain and LLM's capabilities to :
 1. Get title for the article in chain one.
-2. Get a summary for the provided Article.
-3. Get a reviewe for the provided Article.
+2. Get a summary for the provided article.
+3. Get a reviewe for the provided article.
+4. Generate an image based on the article.
 
 """
 
@@ -191,3 +199,35 @@ feedback_chain = (
 
 response_three = feedback_chain.invoke({"article": content})
 print(response_three)
+
+## Image generation task
+
+image_prompt = PromptTemplate(
+    input_variables=["article"],
+    template=(
+        "Generate a prompt with less then 500 characters to generate an image "
+        "based on the following article: {article}"
+    )
+)
+
+def generate_and_display_image(image_prompt):
+    image_url = DallEAPIWrapper().run(image_prompt)
+    image_data = io.imread(image_url)
+    # And update the display code to:
+    plt.imshow(image_data)
+    plt.axis('off')
+    plt.show()
+
+# we wrap this in a RunnableLambda for use with LCEL
+image_gen_runnable = RunnableLambda(generate_and_display_image)
+
+# chain 4: inputs: article, article_para / outputs: new_suggestion_article
+chain_four = (
+    {"article": lambda x: x["article"]}
+    | image_prompt
+    | llm
+    | (lambda x: x.content)
+    | image_gen_runnable
+)
+
+chain_four.invoke({"article": content})
