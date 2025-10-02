@@ -60,13 +60,13 @@ index.insert_nodes(nodes)
 
 ## Creating separate query engines to ensure complete isolation of the chat in real time there would be n such engines.
 jerry_query_engine = index.as_query_engine(
-    llm=OpenAI(model="gpt-4o-mini"),
+    # llm=OpenAI(model="gpt-4o-mini"),
     filters=MetadataFilters(filters=[ExactMatchFilter(key="user", value="Jerry")]),
     similarity_top_k=3
 )
 
 ravi_query_engine = index.as_query_engine(
-    llm=OpenAI(model="gpt-4"),
+    # llm=OpenAI(model="gpt-4o-mini"),
     filters=MetadataFilters(filters=[ExactMatchFilter(key="user", value="Ravi")]),
     similarity_top_k=3
 )
