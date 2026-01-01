@@ -57,5 +57,8 @@ llama-index-core = "^0.14.3"
 llama-index-llms-openai = "^0.6.1"
 llama-index-embeddings-huggingface = "^0.6.1"
 llama-index-embeddings-openai = "^0.5.1"
+pikepdf = "^10.0.0"
+fitz = "^0.0.1.dev2"
+frontend = "^0.0.3"
 
 
